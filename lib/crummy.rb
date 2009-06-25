@@ -92,6 +92,7 @@ module Crummy
       end
       options[:links] = true if options[:links] == nil
       options[:last_linked] = true if options[:last_linked] == nil
+      options[:span] = false if options[:span] == nil
       
       case options[:format]
       when :html
@@ -99,6 +100,16 @@ module Crummy
         crumbs.collect do |crumb|
           i = i + 1
           crumb_options = options.clone
+          crumb_options[:last] = false
+          crumb_options[:first] = false
+            
+          # last item
+          crumb_options[:last] = true if i == crumbs.size
+          
+          # last item
+          crumb_options[:first] = true if i == 1
+          
+          # last_linked?
           if i == crumbs.size and not options[:last_linked]
             crumb_options[:links] = false
           end
@@ -118,7 +129,10 @@ module Crummy
     def crumb_to_html(crumb, options)
       links = options[:links]
       name, url = crumb
-      url && links ? link_to(name, url) : name
+      spanclass = ' class="first"' if options[:first]
+      spanclass = ' class="last"' if options[:last]
+      html = url && links ? link_to(name, url) : name
+      "<span#{spanclass}>#{html}</span>"
     end
     
     def crumb_to_xml(crumb, links)
