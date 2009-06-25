@@ -91,26 +91,39 @@ module Crummy
         options[:seperator] = "crumb" if options[:format] == :xml 
       end
       options[:links] = true if options[:links] == nil
+      options[:last_linked] = true if options[:last_linked] == nil
+      
       case options[:format]
       when :html
+        i = 0
         crumbs.collect do |crumb|
-          crumb_to_html crumb, options[:links]
+          i = i + 1
+          crumb_options = options.clone
+          if i == crumbs.size and not options[:last_linked]
+            crumb_options[:links] = false
+          end
+
+          crumb[0] = crumb[0] + i.to_s
+          crumb_to_html crumb, crumb_options
         end * options[:seperator]
       when :xml
         crumbs.collect do |crumb|
-          crumb_to_xml crumb, options[:links], options[:seperator]
+          crumb_to_xml crumb, options
         end * ''
       else
         raise "Unknown breadcrumb output format"
       end
     end
     
-    def crumb_to_html(crumb, links)
+    def crumb_to_html(crumb, options)
+      links = options[:links]
       name, url = crumb
       url && links ? link_to(name, url) : name
     end
     
-    def crumb_to_xml(crumb, links, seperator)
+    def crumb_to_xml(crumb, links)
+      links = options[:links]
+      seperator = options[:seperator]
       name, url = crumb
       url && links ? "<#{seperator} href=\"#{url}\">#{name}</#{seperator}>" : "<#{seperator}>#{name}</#{seperator}>"
     end
