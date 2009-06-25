@@ -114,7 +114,6 @@ module Crummy
             crumb_options[:links] = false
           end
 
-          crumb[0] = crumb[0] + i.to_s
           crumb_to_html crumb, crumb_options
         end * options[:seperator]
       when :xml
